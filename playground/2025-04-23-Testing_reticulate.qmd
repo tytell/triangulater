@@ -1,0 +1,61 @@
+---
+title: "2025-04-29 Testing reticulate"
+format: html
+---
+
+```{r setup}
+library(tidyverse)
+library(targets)
+library(reticulate)
+library(here)
+
+#this is important because this notebook is in a subdirectory of the project
+targets::tar_config_set(
+  store = here::here("_targets"),
+  script = here::here("_targets.R")
+)
+```
+
+```{r}
+config <- tar_read(config)
+```
+
+Set up to use the right conda environment.
+```{r}
+use_condaenv("triangulate")
+source_python(here("python", "calibrate_charuco.py"))
+```
+
+I tried `map_chr` here also and it didn't change anything
+```{r}
+vidnames <- 
+  with(config, 
+     map_vec(calibration_videos, \(fn) list(file.path(base_path, fn)))
+  )
+
+vidnames
+```
+# Testing the python bits
+
+Ultimately these will go in a separate script.
+```{python}
+board = aniposelib.boards.CharucoBoard(squaresX=r.config['nsquaresx'],
+                                        squaresY=r.config['nsquaresy'],
+                                        square_length=r.config['square_length'],
+                                        marker_length=r.config['marker_length'],
+                                        marker_bits=r.config['marker_bits'],
+                                        dict_size=r.config['dict_size'])
+                                        
+camgroup = aniposelib.cameras.CameraGroup.from_names(r.config['camera_names'])
+```
+
+Key thing: `calibrate_videos` expects the video names to be an array of arrays (with single values in the sub array). I couldn't figure out how to set this up in the R variable, but it's easy to set it up in Python.
+```{python}
+# nest the video names in an array
+vidnames = [[vn1] for vn1 in r.vidnames]
+err, rows = camgroup.calibrate_videos(vidnames, board, 
+                            init_intrinsics=True, init_extrinsics=True, 
+                            verbose=True)
+```
+
+Next step is to test the script.
