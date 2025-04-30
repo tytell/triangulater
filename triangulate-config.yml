@@ -1,0 +1,35 @@
+# Triangulation setup
+# 2025-03-13T16:38
+base_path: /Users/etytel01/Documents/2025/triangulate
+project_name: triangulate
+user: Eric
+
+# Charuco board parameters
+nsquaresx: 6
+nsquaresy: 6
+square_length: 24.33
+marker_length: 17.0
+marker_bits: 5
+dict_size: 50
+
+# Calibration setup
+calibration_videos:
+- raw data/CharucoPostCalib_LateralOrtho.mp4
+- raw data/CharucoPostCalib_LateralOffAxis.mp4
+camera_names:
+- ortho
+- offaxis
+
+calibration_file: calibration.toml
+
+# Axes setup
+axes_files:
+- raw data/labels.000_AxesPostCalib_LateralOrtho.analysis.csv
+- raw data/labels.001_AxesPostCalib_LateralOffAxis.analysis.csv
+axes_output: axes.csv
+
+# Video trials for triangulation
+points_files_list: points_files_list.csv
+points_files_path: raw data
+
+output_file: points3d.csv
